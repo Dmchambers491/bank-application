@@ -115,6 +115,7 @@ public class DollarsBankApplication {
 				boolean created = accountdao.addAccount(account);
 				if(created) {
 					System.out.println(Colors.ANSI_GREEN.getColor() + "Account Created!!" + Colors.ANSI_RESET.getColor());
+					System.out.println(Colors.ANSI_GREEN.getColor() + "Please Login to continue :)" + Colors.ANSI_RESET.getColor());
 					login();
 				}else {
 					throw new Exception();
