@@ -280,6 +280,7 @@ public class DollarsBankApplication {
 		Account acct = null;
 		
 		while(valid) {
+			try {
 			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+-------------------+\n| Withdrawal Portal |\n+-------------------+" + Colors.ANSI_RESET.getColor());
 			System.out.println(Colors.ANSI_YELLOW.getColor() + "Which account do you wish to withdraw from?" + Colors.ANSI_RESET.getColor());
 			for(Account a : accounts) {
@@ -290,30 +291,35 @@ public class DollarsBankApplication {
 			for(Account a : accounts) {
 				if(a.getId() == choice) {
 					acct = a;
-					try{
-						System.out.println(Colors.ANSI_YELLOW.getColor() + "How much do you wish to withdraw?" + Colors.ANSI_RESET.getColor());
-						amount = input.nextDouble();
-						input.nextLine();
-						acct.withdraw(amount);
-						boolean updated = accountdao.updateAccount(acct);
-						
-						if(updated) {
-							System.out.println(Colors.ANSI_GREEN.getColor() + "Withdraw made succesfully!!!" + Colors.ANSI_RESET.getColor());
-							System.out.println("Your new balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
-							continueApp(customer);
-							valid = false;
-						}else {
-							throw new Exception();
-						}
-						
-					}catch(Exception e) {
-						input.nextLine();
-						System.out.println(Colors.ANSI_RED.getColor() + "Please enter a valid amount!" + Colors.ANSI_RESET.getColor());
-					}
+					valid = false;
+				}else {
+					throw new Exception();
 				}
 			}
-			if(acct == null) {
+			}catch(Exception e) {
+				input.nextLine();
 				System.out.println(Colors.ANSI_RED.getColor() + "Not a valid choice!!" + Colors.ANSI_RESET.getColor());
+			}
+		}
+			
+		valid = true;
+		while(valid) {
+			try{
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "How much do you wish to withdraw?" + Colors.ANSI_RESET.getColor());
+				amount = input.nextDouble();
+				input.nextLine();
+				if(acct.withdraw(amount)) {
+					accountdao.updateAccount(acct);
+					System.out.println(Colors.ANSI_GREEN.getColor() + "Withdraw made succesfully!!!" + Colors.ANSI_RESET.getColor());
+					System.out.println("Your new balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
+					continueApp(customer);
+					valid = false;
+				}else {
+					throw new Exception();
+				}
+			}catch(Exception e) {
+				input.nextLine();
+				System.out.println(Colors.ANSI_RED.getColor() + "Please enter a valid amount!" + Colors.ANSI_RESET.getColor());
 			}
 		}
 	}

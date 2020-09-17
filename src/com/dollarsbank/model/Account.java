@@ -19,11 +19,13 @@ public class Account {
 		}
 	}
 
-	public void withdraw(double amount) {
+	public boolean withdraw(double amount) {
 		if (amount != 0 && amount <= balance) {
 			balance = balance - amount;
 			previous_amount = -amount;
+			return true;
 		}
+		return false;
 	}
 
 	public Account() {
