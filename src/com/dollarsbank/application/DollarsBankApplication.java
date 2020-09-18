@@ -30,7 +30,6 @@ public class DollarsBankApplication {
 			System.out.println(Colors.ANSI_GREEN.getColor() + "\nEnter Choice (1, 2, or 3) :" + Colors.ANSI_RESET.getColor());
 			try{
 				choice = input.nextInt();
-				input.nextLine();
 				switch (choice) {
 				case 1:
 					createAccount();
@@ -182,11 +181,10 @@ public class DollarsBankApplication {
 		boolean valid = true;
 		
 		while(valid) {
-			System.out.println("1: Deposit Amount\n2: Withdraw Amount\n3: Funds Transfer\n4: View Recent Transaction\n5: Display Customer Information\n6: Sign out");
+			System.out.println("1: Make Deposit\n2: Make Withdrawal\n3: Create New Bank Account\n4: Transfer Funds\n5: View Recent Transaction\n6: Display Customer Information\n7: Sign out");
 			System.out.println(Colors.ANSI_GREEN.getColor() + "\nEnter Choice (1,2,3,4,5, or 6) :" + Colors.ANSI_RESET.getColor());
 			try{
 				choice = input.nextInt();
-				input.nextLine();
 				switch (choice) {
 				case 1:
 					makeDeposit(customer);
@@ -197,17 +195,21 @@ public class DollarsBankApplication {
 					valid = false;
 					break;
 				case 3:
+					newAccount(customer);
 					valid = false;
 					break;
 				case 4:
-					viewTransactions(customer);
 					valid = false;
 					break;
 				case 5:
-					displayCustomer(customer);
+					viewTransactions(customer);
 					valid = false;
 					break;
 				case 6:
+					displayCustomer(customer);
+					valid = false;
+					break;
+				case 7:
 					signOut();
 					valid = false;
 					break;
@@ -223,9 +225,41 @@ public class DollarsBankApplication {
 		}
 	}
 	
+	public static void newAccount(Customer customer) {
+		double initial_deposit;
+		Scanner input = new Scanner(System.in);
+		boolean valid = true;
+		
+		while(valid) {
+			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+-------------------------+\n| Create New Bank Account |\n+-------------------------+" + Colors.ANSI_RESET.getColor());
+			System.out.println(Colors.ANSI_GREEN.getColor() + "Enter Initial Deposit Amount:" + Colors.ANSI_RESET.getColor());
+			try {
+				initial_deposit = input.nextInt();
+				if(initial_deposit <= 0) {
+					throw new Exception();
+				}
+				
+				Account account = new Account();
+				account.deposit(initial_deposit);
+				account.setCustomer_id(customer.getId());
+				boolean created = accountdao.addAccount(account);
+				
+				if(created) {
+					System.out.println(Colors.ANSI_GREEN.getColor() + "Bank Account created Successfully!!" + Colors.ANSI_RESET.getColor());
+					welcomeCustomer(customer);
+					valid = false;
+				}else {
+					throw new Exception();
+				}
+			}catch(Exception e) {
+				input.nextLine();
+				System.out.println(Colors.ANSI_RED.getColor() + "Please enter a number!" + Colors.ANSI_RESET.getColor());
+			}
+		}
+	}
+	
 	public static void makeDeposit(Customer customer) {
 		double amount;
-		int choice;
 		Scanner input = new Scanner(System.in);
 		boolean valid = true;
 		
@@ -233,47 +267,58 @@ public class DollarsBankApplication {
 		Account acct = null;
 		
 		while(valid) {
-			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+----------------+\n| Deposit Portal |\n+----------------+" + Colors.ANSI_RESET.getColor());
-			System.out.println(Colors.ANSI_YELLOW.getColor() + "Which account do you wish to deposit to?" + Colors.ANSI_RESET.getColor());
-			for(Account a : accounts) {
-				System.out.println("Account " + a.getId());
-			}
-			System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
-			choice = input.nextInt();
-			for(Account a : accounts) {
-				if(a.getId() == choice) {
-					acct = a;
-					try{
-						System.out.println(Colors.ANSI_YELLOW.getColor() + "How much do you wish to deposit?" + Colors.ANSI_RESET.getColor());
-						amount = input.nextDouble();
-						input.nextLine();
-						acct.deposit(amount);
-						boolean updated = accountdao.updateAccount(acct);
-						
-						if(updated) {
-							System.out.println(Colors.ANSI_GREEN.getColor() + "Deposit made succesfully!!!" + Colors.ANSI_RESET.getColor());
-							System.out.println(Colors.ANSI_GREEN.getColor() + "Your new balance is $" + acct.getBalance() + Colors.ANSI_RESET.getColor());
-							continueApp(customer);
-							valid = false;
-						}else {
-							throw new Exception();
-						}
-						
-					}catch(Exception e) {
-						input.nextLine();
-						System.out.println(Colors.ANSI_RED.getColor() + "Please enter a valid amount!" + Colors.ANSI_RESET.getColor());
-					}
+			int choice;
+			try {
+				System.out.println(Colors.ANSI_BLUE.getColor() + "\n+----------------+\n| Deposit Portal |\n+----------------+" + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Which account do you wish to deposit to?" + Colors.ANSI_RESET.getColor());
+				for(Account a : accounts) {
+					System.out.println("Account " + a.getId());
 				}
-			}
-			if(acct == null) {
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+				choice = input.nextInt();
+				
+				acct = accounts.stream()
+						.filter(account -> choice == account.getId())
+						.findFirst()
+						.orElse(null);
+				
+				if(acct != null) {
+					valid = false;
+				}else {
+					System.out.println(Colors.ANSI_RED.getColor() + "Please enter correct Account Id!!" + Colors.ANSI_RESET.getColor());
+				}
+			}catch(Exception e) {
+				input.nextLine();
 				System.out.println(Colors.ANSI_RED.getColor() + "Not a valid choice!!" + Colors.ANSI_RESET.getColor());
+			}
+		}
+		
+		valid = true;
+		while(valid) {
+			try{
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "How much do you wish to deposit?" + Colors.ANSI_RESET.getColor());
+				amount = input.nextDouble();
+				acct.deposit(amount);
+				boolean updated = accountdao.updateAccount(acct);
+				
+				if(updated) {
+					System.out.println(Colors.ANSI_GREEN.getColor() + "Deposit made succesfully!!!" + Colors.ANSI_RESET.getColor());
+					System.out.println(Colors.ANSI_GREEN.getColor() + "Your new balance is $" + acct.getBalance() + Colors.ANSI_RESET.getColor());
+					continueApp(customer);
+					valid = false;
+				}else {
+					throw new Exception();
+				}
+				
+			}catch(Exception e) {
+				input.nextLine();
+				System.out.println(Colors.ANSI_RED.getColor() + "Please enter a valid amount!" + Colors.ANSI_RESET.getColor());
 			}
 		}
 	}
 	
 	public static void makeWithdraw(Customer customer) {
 		double amount;
-		int choice;
 		Scanner input = new Scanner(System.in);
 		boolean valid = true;
 		
@@ -281,6 +326,7 @@ public class DollarsBankApplication {
 		Account acct = null;
 		
 		while(valid) {
+			int choice;
 			try {
 			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+-------------------+\n| Withdrawal Portal |\n+-------------------+" + Colors.ANSI_RESET.getColor());
 			System.out.println(Colors.ANSI_YELLOW.getColor() + "Which account do you wish to withdraw from?" + Colors.ANSI_RESET.getColor());
@@ -289,14 +335,18 @@ public class DollarsBankApplication {
 			}
 			System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
 			choice = input.nextInt();
-			for(Account a : accounts) {
-				if(a.getId() == choice) {
-					acct = a;
-					valid = false;
-				}else {
-					throw new Exception();
-				}
+			
+			acct = accounts.stream()
+					.filter(account -> choice == account.getId())
+					.findFirst()
+					.orElse(null);
+			
+			if(acct != null) {
+				valid = false;
+			}else {
+				System.out.println(Colors.ANSI_RED.getColor() + "Please enter correct Account Id!!" + Colors.ANSI_RESET.getColor());
 			}
+			
 			}catch(Exception e) {
 				input.nextLine();
 				System.out.println(Colors.ANSI_RED.getColor() + "Not a valid choice!!" + Colors.ANSI_RESET.getColor());
@@ -326,7 +376,6 @@ public class DollarsBankApplication {
 	}
 	
 	public static void viewTransactions(Customer customer) {
-		int choice;
 		Scanner input = new Scanner(System.in);
 		boolean valid = true;
 		
@@ -334,33 +383,42 @@ public class DollarsBankApplication {
 		Account acct = null;
 		
 		while(valid) {
-			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+--------------------+\n| Recent Transaction |\n+--------------------+" + Colors.ANSI_RESET.getColor());
-			System.out.println(Colors.ANSI_YELLOW.getColor() + "For which account do you wish to view the previous transactions?" + Colors.ANSI_RESET.getColor());
-			for(Account a : accounts) {
-				System.out.println("Account " + a.getId());
-			}
-			System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
-			choice = input.nextInt();
-			for(Account a : accounts) {
-				if(a.getId() == choice) {
-					acct = a;
-					if (acct.getPrevious_amount() > 0) {
-						System.out.println("Deposit Amount of " + Colors.ANSI_GREEN.getColor() + "$" + acct.getPrevious_amount() + Colors.ANSI_RESET.getColor() + " was made to Account " + acct.getId() + "\nYour current Balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
-					} else if (acct.getPrevious_amount() < 0) {
-						System.out.println("Withdrawal Amount of " + Colors.ANSI_GREEN.getColor() + "$" + Math.abs(acct.getPrevious_amount()) + Colors.ANSI_RESET.getColor() + " was made to Account " + acct.getId() + "\nYour current Balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
-					} else {
-						System.out.println(Colors.ANSI_YELLOW.getColor() + "No transaction occured!" + Colors.ANSI_RESET.getColor());
-					}
-					
-					continueApp(customer);
+			int choice;
+			try {
+				System.out.println(Colors.ANSI_BLUE.getColor() + "\n+--------------------+\n| Recent Transaction |\n+--------------------+" + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "For which account do you wish to view the previous transactions?" + Colors.ANSI_RESET.getColor());
+				for(Account a : accounts) {
+					System.out.println("Account " + a.getId());
+				}
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+				choice = input.nextInt();
+				
+				acct = accounts.stream()
+						.filter(account -> choice == account.getId())
+						.findFirst()
+						.orElse(null);
+				
+				if(acct != null) {
 					valid = false;
+				}else {
+					System.out.println(Colors.ANSI_RED.getColor() + "Please enter correct Account Id!!" + Colors.ANSI_RESET.getColor());
 				}
 				
-			}
-			if(acct == null) {
+			}catch(Exception e) {
+				input.nextLine();
 				System.out.println(Colors.ANSI_RED.getColor() + "Not a valid choice!!" + Colors.ANSI_RESET.getColor());
 			}
 		}
+		
+		if (acct.getPrevious_amount() > 0) {
+			System.out.println("Deposit Amount of " + Colors.ANSI_GREEN.getColor() + "$" + acct.getPrevious_amount() + Colors.ANSI_RESET.getColor() + " was made to Account " + acct.getId() + "\nYour current Balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
+		} else if (acct.getPrevious_amount() < 0) {
+			System.out.println("Withdrawal Amount of " + Colors.ANSI_GREEN.getColor() + "$" + Math.abs(acct.getPrevious_amount()) + Colors.ANSI_RESET.getColor() + " was made to Account " + acct.getId() + "\nYour current Balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
+		} else {
+			System.out.println(Colors.ANSI_YELLOW.getColor() + "No transaction occured!" + Colors.ANSI_RESET.getColor());
+		}
+		
+		continueApp(customer);
 	}
 	
 	public static void continueApp(Customer customer) {
