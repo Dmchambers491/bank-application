@@ -199,6 +199,7 @@ public class DollarsBankApplication {
 					valid = false;
 					break;
 				case 4:
+					transferFunds(customer);
 					valid = false;
 					break;
 				case 5:
@@ -221,6 +222,82 @@ public class DollarsBankApplication {
 			}catch(IllegalArgumentException e) {
 				input.nextLine();
 				System.out.println(Colors.ANSI_RED.getColor() + "Please enter a number!" + Colors.ANSI_RESET.getColor());
+			}
+		}
+	}
+	
+	public static void transferFunds(Customer customer) {
+		double amount;
+		Scanner input = new Scanner(System.in);
+		boolean valid = true;
+		
+		List<Account> accounts = accountdao.getAccountsByCustomerId(customer.getId());
+		Account acct1 = null;
+		Account acct2 = null;
+		
+		while(valid) {
+			int choice1;
+			int choice2;
+			try {
+				System.out.println(Colors.ANSI_BLUE.getColor() + "\n+----------------+\n| Transfer Funds |\n+----------------+" + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Which account do you wish to transfer from?" + Colors.ANSI_RESET.getColor());
+				for(Account a : accounts) {
+					System.out.println("Account " + a.getId() + " has a balance of " + Colors.ANSI_GREEN.getColor() + "$" + a.getBalance() + Colors.ANSI_RESET.getColor());
+				}
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+				choice1 = input.nextInt();
+				
+				acct1 = accounts.stream()
+						.filter(account -> choice1 == account.getId())
+						.findFirst()
+						.orElse(null);
+				
+				if(acct1 != null) {
+					System.out.println(Colors.ANSI_YELLOW.getColor() + "Which account do you wish to transfer to?" + Colors.ANSI_RESET.getColor());
+					for(Account a : accounts) {
+						if(a.getId() == acct1.getId()) {
+							continue;
+						}
+						System.out.println("Account " + a.getId() + " has a balance of " + Colors.ANSI_GREEN.getColor() + "$" + a.getBalance() + Colors.ANSI_RESET.getColor());
+					}
+					
+					System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+					choice2 = input.nextInt();
+					if(choice2 == acct1.getId()) {
+						throw new Exception();
+					}
+					
+					acct2 = accounts.stream()
+							.filter(account -> choice2 == account.getId())
+							.findFirst()
+							.orElse(null);
+					
+					if(acct2 != null) {
+						System.out.println(Colors.ANSI_YELLOW.getColor() + "How much do you wish to transfer? " + Colors.ANSI_RESET.getColor());
+						amount = input.nextDouble();
+						if(amount <= acct1.getBalance()) {
+							acct2.deposit(amount);
+							acct1.withdraw(amount);
+							accountdao.updateAccount(acct2);
+							accountdao.updateAccount(acct1);
+							
+							System.out.println(Colors.ANSI_GREEN.getColor() + "Transfer made succesfully!!!" + Colors.ANSI_RESET.getColor());
+							System.out.println(Colors.ANSI_GREEN.getColor() + "Your new balance for Account " + acct1.getId() + "is $" + acct1.getBalance() + Colors.ANSI_RESET.getColor());
+							System.out.println(Colors.ANSI_GREEN.getColor() + "Your new balance for Account " + acct2.getId() + "is $" + acct2.getBalance() + Colors.ANSI_RESET.getColor());
+							continueApp(customer);
+							valid = false;
+						}else {
+							throw new Exception();
+						}
+					}else {
+						System.out.println(Colors.ANSI_RED.getColor() + "Please enter correct Account Id!!" + Colors.ANSI_RESET.getColor());
+					}
+				}else {
+					System.out.println(Colors.ANSI_RED.getColor() + "Please enter correct Account Id!!" + Colors.ANSI_RESET.getColor());
+				}
+			}catch(Exception e) {
+				input.nextLine();
+				System.out.println(Colors.ANSI_RED.getColor() + "Not a valid choice!!" + Colors.ANSI_RESET.getColor());
 			}
 		}
 	}

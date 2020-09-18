@@ -12,11 +12,13 @@ public class Account {
 	private double previous_amount;
 	private String customer_id;
 
-	public void deposit(double amount) {
+	public boolean deposit(double amount) {
 		if (amount != 0) {
 			balance = balance + amount;
 			previous_amount = amount;
+			return true;
 		}
+		return false;
 	}
 
 	public boolean withdraw(double amount) {
