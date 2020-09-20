@@ -562,7 +562,11 @@ public class DollarsBankApplication {
 		System.out.println("Customer Phone Number: " + Colors.ANSI_YELLOW.getColor() + customer.getPhone_number() + Colors.ANSI_RESET.getColor());
 		System.out.println("Accounts: ");
 		List<Account> accounts = accountdao.getAccountsByCustomerId(customer.getId());
-		System.out.println(Colors.ANSI_YELLOW.getColor() + accounts + Colors.ANSI_RESET.getColor());
+		System.out.print(Colors.ANSI_YELLOW.getColor());
+		for(Account a : accounts) {
+			System.out.println("Account " + a.getId() + " has a balance of $" + a.getBalance());
+		}
+		System.out.println(Colors.ANSI_RESET.getColor());
 		
 		continueApp(customer);
 	}
