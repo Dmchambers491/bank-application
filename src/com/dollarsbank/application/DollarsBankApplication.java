@@ -60,7 +60,7 @@ public class DollarsBankApplication {
 	}
 	
 	public static void signOut() {
-		System.out.println(Colors.ANSI_GREEN.getColor() + "Successfully Logged Out!!" + Colors.ANSI_RESET.getColor());
+		System.out.println(Colors.ANSI_GREEN.getColor() + "\nSuccessfully Logged Out!!" + Colors.ANSI_RESET.getColor());
 		welcome();
 	}
 	
@@ -529,7 +529,7 @@ public class DollarsBankApplication {
 		boolean valid = true;
 		
 		while(valid) {
-			System.out.println(Colors.ANSI_GREEN.getColor() + "\nDo you wish to continue? 1=Yes 2=No");
+			System.out.println(Colors.ANSI_GREEN.getColor() + "\nDo you wish to continue or signout? 1=continue 2=signout");
 			System.out.println("Enter Choice (1, or 2) :" + Colors.ANSI_RESET.getColor());
 			try{
 				choice = input.nextInt();
