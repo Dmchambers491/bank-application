@@ -289,7 +289,7 @@ public class DollarsBankApplication {
 					System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
 					choice2 = input.nextInt();
 					if(choice2 == acct1.getId()) {
-						throw new Exception();
+						throw new DuplicateChoiceException(choice2);
 					}
 					
 					acct2 = accounts.stream()
@@ -312,17 +312,20 @@ public class DollarsBankApplication {
 							continueApp(customer);
 							valid = false;
 						}else {
-							throw new Exception();
+							throw new AmountOutOfReachException(acct1, amount);
 						}
 					}else {
-						System.out.println(Colors.ANSI_RED.getColor() + "Please enter correct Account Id!!" + Colors.ANSI_RESET.getColor());
+						throw new InvalidAccountIdException(choice2);
 					}
 				}else {
-					System.out.println(Colors.ANSI_RED.getColor() + "Please enter correct Account Id!!" + Colors.ANSI_RESET.getColor());
+					throw new InvalidAccountIdException(choice1);
 				}
-			}catch(Exception e) {
-				input.nextLine();
-				System.out.println(Colors.ANSI_RED.getColor() + "Not a valid choice!!" + Colors.ANSI_RESET.getColor());
+			}catch(InvalidAccountIdException e) {
+				
+			}catch(DuplicateChoiceException e) {
+				
+			}catch(AmountOutOfReachException e) {
+				
 			}
 		}
 	}
