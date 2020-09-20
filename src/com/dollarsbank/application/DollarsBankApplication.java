@@ -111,7 +111,7 @@ public class DollarsBankApplication {
 							initial_deposit = input.nextInt();
 							input.nextLine();
 							System.out.print(Colors.ANSI_RESET.getColor());
-							if(initial_deposit > 0) {
+							if(initial_deposit >= 25) {
 								Customer customer = new Customer(id, name, address, phone_number, password);
 								customerdao.addCustomer(customer);
 								Account account = new Account();
@@ -340,25 +340,19 @@ public class DollarsBankApplication {
 			System.out.println(Colors.ANSI_GREEN.getColor() + "Enter Initial Deposit Amount:" + Colors.ANSI_RESET.getColor());
 			try {
 				initial_deposit = input.nextInt();
-				if(initial_deposit <= 0) {
-					throw new Exception();
+				if(initial_deposit < 25) {
+					throw new InvalidInitialDepositException();
 				}
 				
 				Account account = new Account();
 				account.deposit(initial_deposit);
 				account.setCustomer_id(customer.getId());
 				boolean created = accountdao.addAccount(account);
+				System.out.println(Colors.ANSI_GREEN.getColor() + "Bank Account created Successfully!!" + Colors.ANSI_RESET.getColor());
+				welcomeCustomer(customer);
+				valid = false;
+			}catch(InvalidInitialDepositException e) {
 				
-				if(created) {
-					System.out.println(Colors.ANSI_GREEN.getColor() + "Bank Account created Successfully!!" + Colors.ANSI_RESET.getColor());
-					welcomeCustomer(customer);
-					valid = false;
-				}else {
-					throw new Exception();
-				}
-			}catch(Exception e) {
-				input.nextLine();
-				System.out.println(Colors.ANSI_RED.getColor() + "Please enter a number!" + Colors.ANSI_RESET.getColor());
 			}
 		}
 	}
