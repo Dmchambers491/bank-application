@@ -74,6 +74,7 @@ public class DollarsBankApplication {
 		boolean valid = true;
 		Scanner input = new Scanner(System.in);
 		
+		Pattern namePattern = Pattern.compile("^(([a-z]+|[a-zA-Z]+))|([a-zA-Z]+\\s{1}[a-zA-Z]+)$");
 		Pattern phonePattern = Pattern.compile("^.?\\d{3}.?(\\s{1}|.)?\\d{3}.?\\d{4}$");
 		Pattern passwordPattern = Pattern.compile("(?=.*[a-z])(?=.*[@#$%!^&])(?=.*[A-Z]).{8}");
 		
@@ -84,6 +85,10 @@ public class DollarsBankApplication {
 				System.out.println("Customer Name:");
 				System.out.print(Colors.ANSI_CYAN.getColor());
 				name = input.nextLine();
+				Matcher nameMatcher = namePattern.matcher(name);
+				if(nameMatcher.matches() == false) {
+					throw new InvalidNameException(name);
+				}
 				System.out.println(Colors.ANSI_RESET.getColor() + "Customer Address:");
 				System.out.print(Colors.ANSI_CYAN.getColor());
 				address = input.nextLine();
@@ -135,6 +140,8 @@ public class DollarsBankApplication {
 					throw new DuplicateIdException();
 				}
 				
+			}catch(InvalidNameException e) {
+				
 			}catch(DuplicateIdException e) {
 			
 			}catch(DuplicatePasswordException e) {
@@ -145,6 +152,8 @@ public class DollarsBankApplication {
 				
 			}catch (InvalidPasswordCreationException e) {
 				
+			}catch(Exception e) {
+				System.out.println(Colors.ANSI_RED.getColor() + "Invalid Input!");
 			}
 		}
 	
