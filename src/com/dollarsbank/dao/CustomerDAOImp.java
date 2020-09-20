@@ -99,5 +99,34 @@ public class CustomerDAOImp implements CustomerDAO {
 		return false;
 	}
 
+	@Override
+	public Customer getCustomerByPassword(String password) {
+		
+		Customer customer = null;
+		
+		try(PreparedStatement pstmt = conn.prepareStatement("select * from customers where password = ?")) {
+			
+			pstmt.setString(1, password);
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				String id = rs.getString(1);
+				String name = rs.getString(2);
+				String address = rs.getString(3);
+				String phone_number = rs.getString(4);
+				String cust_password = rs.getString(5);
+				
+				customer = new Customer(id, name, address, phone_number, cust_password);
+			}
+			
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return customer;
+	}
+
 	
 }

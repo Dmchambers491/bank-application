@@ -10,5 +10,7 @@ public interface CustomerDAO {
 	
 	public Customer getCustomerById(String id);
 	
+	public Customer getCustomerByPassword(String password);
+	
 	public boolean addCustomer(Customer customer);
 }

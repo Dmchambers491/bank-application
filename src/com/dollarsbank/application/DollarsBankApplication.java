@@ -12,6 +12,7 @@ import com.dollarsbank.dao.CustomerDAOImp;
 import com.dollarsbank.model.Account;
 import com.dollarsbank.model.Customer;
 import com.dollarsbank.utility.ColorsUtility.Colors;
+import com.dollarsbank.exceptions.*;
 
 public class DollarsBankApplication {
 	
@@ -70,63 +71,83 @@ public class DollarsBankApplication {
 		String id;
 		String password;
 		int initial_deposit;
+		boolean valid = true;
+		Scanner input = new Scanner(System.in);
 		
 		Pattern phonePattern = Pattern.compile("^.?\\d{3}.?(\\s{1}|.)?\\d{3}.?\\d{4}$");
 		Pattern passwordPattern = Pattern.compile("(?=.*[a-z])(?=.*[@#$%!^&])(?=.*[A-Z]).{8}");
 		
-		System.out.println(Colors.ANSI_BLUE.getColor() + "\n+-------------------------------+\n| Enter Details For New Account |\n+-------------------------------+" + Colors.ANSI_RESET.getColor());
-		
-		try(Scanner input = new Scanner(System.in)) {
-			System.out.println("Customer Name:");
-			System.out.print(Colors.ANSI_CYAN.getColor());
-			name = input.nextLine();
-			System.out.println(Colors.ANSI_RESET.getColor() + "Customer Address:");
-			System.out.print(Colors.ANSI_CYAN.getColor());
-			address = input.nextLine();
-			System.out.println(Colors.ANSI_RESET.getColor() + "Customer Contact Number:");
-			System.out.print(Colors.ANSI_CYAN.getColor());
-			phone_number = input.nextLine();
-			Matcher phoneMatcher = phonePattern.matcher(phone_number);
-			if(phoneMatcher.matches() == false) {
-				throw new Exception();
-			}
-			System.out.println(Colors.ANSI_RESET.getColor() + "User Id:");
-			System.out.print(Colors.ANSI_CYAN.getColor());
-			id = input.nextLine();
-			System.out.println(Colors.ANSI_RESET.getColor() + "Password: 8 Characters With Lower, Upper & Special");
-			System.out.print(Colors.ANSI_CYAN.getColor());
-			password = input.nextLine();
-			Matcher passwordMatcher = passwordPattern.matcher(password);
-			if(!passwordMatcher.matches()) {
-				throw new Exception();
-			}
-			System.out.println(Colors.ANSI_RESET.getColor() + "Initial Deposit Amount:");
-			System.out.print(Colors.ANSI_CYAN.getColor());
-			initial_deposit = input.nextInt();
-			System.out.print(Colors.ANSI_RESET.getColor());
+		while(valid) {
+			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+-------------------------------+\n| Enter Details For New Account |\n+-------------------------------+" + Colors.ANSI_RESET.getColor());
 			
-			Customer customer = new Customer(id, name, address, phone_number, password);
-			boolean added = customerdao.addCustomer(customer);
-			if(added) {
-				Account account = new Account();
-				account.deposit(initial_deposit);
-				account.setCustomer_id(id);
-				boolean created = accountdao.addAccount(account);
-				if(created) {
-					System.out.println(Colors.ANSI_GREEN.getColor() + "Account Created!!" + Colors.ANSI_RESET.getColor());
-					System.out.println(Colors.ANSI_GREEN.getColor() + "Please Login to continue :)" + Colors.ANSI_RESET.getColor());
-					login();
-				}else {
-					throw new Exception();
+			try {
+				System.out.println("Customer Name:");
+				System.out.print(Colors.ANSI_CYAN.getColor());
+				name = input.nextLine();
+				System.out.println(Colors.ANSI_RESET.getColor() + "Customer Address:");
+				System.out.print(Colors.ANSI_CYAN.getColor());
+				address = input.nextLine();
+				System.out.println(Colors.ANSI_RESET.getColor() + "Customer Contact Number:");
+				System.out.print(Colors.ANSI_CYAN.getColor());
+				phone_number = input.nextLine();
+				Matcher phoneMatcher = phonePattern.matcher(phone_number);
+				if(phoneMatcher.matches() == false) {
+					throw new InvalidPhoneFormatException();
 				}
-			}else {
-				throw new Exception();
-			}
+				System.out.println(Colors.ANSI_RESET.getColor() + "User Id:");
+				System.out.print(Colors.ANSI_CYAN.getColor());
+				id = input.nextLine();
+				Customer idCheck = customerdao.getCustomerById(id);
+				if(idCheck == null) {
+					System.out.println(Colors.ANSI_RESET.getColor() + "Password: 8 Characters With Lower, Upper & Special");
+					System.out.print(Colors.ANSI_CYAN.getColor());
+					password = input.nextLine();
+					Matcher passwordMatcher = passwordPattern.matcher(password);
+					if(passwordMatcher.matches()) {
+						Customer passwordCheck = customerdao.getCustomerByPassword(password);
+						if(passwordCheck == null) {
+							System.out.println(Colors.ANSI_RESET.getColor() + "Initial Deposit Amount:");
+							System.out.print(Colors.ANSI_CYAN.getColor());
+							initial_deposit = input.nextInt();
+							input.nextLine();
+							System.out.print(Colors.ANSI_RESET.getColor());
+							if(initial_deposit > 0) {
+								Customer customer = new Customer(id, name, address, phone_number, password);
+								customerdao.addCustomer(customer);
+								Account account = new Account();
+								account.deposit(initial_deposit);
+								account.setCustomer_id(id);
+								accountdao.addAccount(account);
+								System.out.println(Colors.ANSI_GREEN.getColor() + "Account Created!!" + Colors.ANSI_RESET.getColor());
+								System.out.println(Colors.ANSI_GREEN.getColor() + "Please Login to continue :)" + Colors.ANSI_RESET.getColor());
+								login();
+								valid = false;
+							}else {
+								throw new InvalidInitialDepositException();
+							}
+						}else {
+							throw new DuplicatePasswordException();
+						}
+					}else {
+						throw new InvalidPasswordCreationException();
+					}
+				}else {
+					throw new DuplicateIdException();
+				}
+				
+			}catch(DuplicateIdException e) {
 			
-		} catch (Exception e) {
-			System.out.println(Colors.ANSI_RED.getColor() + "Invalid Input!!" + Colors.ANSI_RESET.getColor());
+			}catch(DuplicatePasswordException e) {
+				
+			}catch (InvalidInitialDepositException e) {
+				
+			}catch (InvalidPhoneFormatException e) {
+				
+			}catch (InvalidPasswordCreationException e) {
+				
+			}
 		}
-		
+	
 	}
 	
 	public static void login() {
@@ -154,20 +175,23 @@ public class DollarsBankApplication {
 						welcomeCustomer(found);
 					}else {
 						counter += 1;
-						throw new Exception();
+						throw new InvalidPasswordException();
 					}
 				}else {
 					counter += 1;
-					throw new Exception();
+					throw new InvalidUserIdException();
 				}
-			} catch (Exception e) {
-				input.nextLine();
+			} catch (InvalidUserIdException e) {
 				if(counter == 3) {
 					System.out.println(Colors.ANSI_RED.getColor() + "Too many unsuccessful logins!!");
 					valid = false;
 					exit();
-				}else {
-					System.out.println(Colors.ANSI_RED.getColor() + "Invalid Input!!");
+				}
+			} catch (InvalidPasswordException e) {
+				if(counter == 3) {
+					System.out.println(Colors.ANSI_RED.getColor() + "Too many unsuccessful logins!!");
+					valid = false;
+					exit();
 				}
 			}
 		}
