@@ -182,19 +182,20 @@ public class DollarsBankApplication {
 					throw new InvalidUserIdException();
 				}
 			} catch (InvalidUserIdException e) {
-				if(counter == 3) {
-					System.out.println(Colors.ANSI_RED.getColor() + "Too many unsuccessful logins!!");
-					valid = false;
-					exit();
-				}
+				valid = checkLoginSuccess(counter);
 			} catch (InvalidPasswordException e) {
-				if(counter == 3) {
-					System.out.println(Colors.ANSI_RED.getColor() + "Too many unsuccessful logins!!");
-					valid = false;
-					exit();
-				}
+				valid = checkLoginSuccess(counter);
 			}
 		}
+	}
+	
+	public static boolean checkLoginSuccess(int num) {
+		if(num == 3) {
+			System.out.println(Colors.ANSI_RED.getColor() + "Too many unsuccessful logins!!");
+			exit();
+			return false;
+		}
+		return true;
 	}
 	
 	public static void welcomeCustomer(Customer customer) {
