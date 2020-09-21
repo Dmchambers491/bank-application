@@ -508,18 +508,21 @@ public class DollarsBankApplication {
 				System.out.println(Colors.ANSI_YELLOW.getColor() + "How much do you wish to withdraw?" + Colors.ANSI_RESET.getColor());
 				amount = input.nextDouble();
 				input.nextLine();
-				if(acct.withdraw(amount)) {
-					accountdao.updateAccount(acct);
-					System.out.println(Colors.ANSI_GREEN.getColor() + "Withdraw made succesfully!!!" + Colors.ANSI_RESET.getColor());
-					System.out.println("Your new balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
-					continueApp(customer);
-					valid = false;
-				}else {
-					throw new Exception();
+				if(amount <= 0) {
+					throw new InvalidWithdrawException(amount);
 				}
+				
+				acct.withdraw(amount);
+				accountdao.updateAccount(acct);
+				System.out.println(Colors.ANSI_GREEN.getColor() + "Withdraw made succesfully!!!" + Colors.ANSI_RESET.getColor());
+				System.out.println("Your new balance is " + Colors.ANSI_GREEN.getColor() + "$" + acct.getBalance() + Colors.ANSI_RESET.getColor());
+				continueApp(customer);
+				valid = false;
+			}catch(InvalidWithdrawException e) {
+				
 			}catch(Exception e) {
 				input.nextLine();
-				System.out.println(Colors.ANSI_RED.getColor() + "Please enter a valid amount!" + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_RED.getColor() + "Withdraw must be a number!" + Colors.ANSI_RESET.getColor());
 			}
 		}
 	}
