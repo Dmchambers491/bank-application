@@ -283,8 +283,13 @@ public class DollarsBankApplication {
 				for(Account a : accounts) {
 					System.out.println("Account " + a.getId() + " has a balance of " + Colors.ANSI_GREEN.getColor() + "$" + a.getBalance() + Colors.ANSI_RESET.getColor());
 				}
-				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RED.getColor() + "(Press 0 to cancel) " + Colors.ANSI_RESET.getColor());
 				choice1 = input.nextInt();
+				
+				if(choice1 == 0) {
+					welcomeCustomer(customer);
+					valid = false;
+				}
 				
 				acct1 = accounts.stream()
 						.filter(account -> choice1 == account.getId())
@@ -350,23 +355,38 @@ public class DollarsBankApplication {
 		boolean valid = true;
 		
 		while(valid) {
-			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+-------------------------+\n| Create New Bank Account |\n+-------------------------+" + Colors.ANSI_RESET.getColor());
-			System.out.println(Colors.ANSI_GREEN.getColor() + "Enter Initial Deposit Amount:" + Colors.ANSI_RESET.getColor());
-			try {
-				initial_deposit = input.nextInt();
-				if(initial_deposit < 25) {
-					throw new InvalidInitialDepositException();
-				}
-				
-				Account account = new Account();
-				account.deposit(initial_deposit);
-				account.setCustomer_id(customer.getId());
-				boolean created = accountdao.addAccount(account);
-				System.out.println(Colors.ANSI_GREEN.getColor() + "Bank Account created Successfully!!" + Colors.ANSI_RESET.getColor());
+			int choice;
+			System.out.println(Colors.ANSI_BLUE.getColor() + "\n+-------------------------+\n| Create New Bank Account |\n+-------------------------+");
+			System.out.println(Colors.ANSI_RED.getColor() + "Press 0 to cancel or 1 to continue: " + Colors.ANSI_RESET.getColor());
+			choice = input.nextInt();
+			
+			switch(choice) {
+			case 0:
 				welcomeCustomer(customer);
 				valid = false;
-			}catch(InvalidInitialDepositException e) {
-				
+				break;
+			case 1:
+				System.out.println(Colors.ANSI_GREEN.getColor() + "Enter Initial Deposit Amount:" + Colors.ANSI_RESET.getColor());
+				try {
+					initial_deposit = input.nextInt();
+					if(initial_deposit < 25) {
+						throw new InvalidInitialDepositException();
+					}
+					
+					Account account = new Account();
+					account.deposit(initial_deposit);
+					account.setCustomer_id(customer.getId());
+					boolean created = accountdao.addAccount(account);
+					System.out.println(Colors.ANSI_GREEN.getColor() + "Bank Account created Successfully!!" + Colors.ANSI_RESET.getColor());
+					welcomeCustomer(customer);
+					valid = false;
+					break;
+				}catch(InvalidInitialDepositException e) {
+					break;
+				}
+			default:
+				System.out.println(Colors.ANSI_RED.getColor() + "Enter correct number!!");
+				break;
 			}
 		}
 	}
@@ -387,8 +407,13 @@ public class DollarsBankApplication {
 				for(Account a : accounts) {
 					System.out.println("Account " + a.getId());
 				}
-				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RED.getColor() + "(Press 0 to cancel transaction) " + Colors.ANSI_RESET.getColor());
 				choice = input.nextInt();
+				
+				if(choice == 0) {
+					welcomeCustomer(customer);
+					valid = false;
+				}
 				
 				acct = accounts.stream()
 						.filter(account -> choice == account.getId())
@@ -446,8 +471,13 @@ public class DollarsBankApplication {
 			for(Account a : accounts) {
 				System.out.println("Account " + a.getId() + " has a balance of " + Colors.ANSI_GREEN.getColor() + "$" + a.getBalance() + Colors.ANSI_RESET.getColor());
 			}
-			System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+			System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RED.getColor() + "(Press 0 to cancel transaction) " + Colors.ANSI_RESET.getColor());
 			choice = input.nextInt();
+			
+			if(choice == 0) {
+				welcomeCustomer(customer);
+				valid = false;
+			}
 			
 			acct = accounts.stream()
 					.filter(account -> choice == account.getId())
@@ -503,8 +533,13 @@ public class DollarsBankApplication {
 				for(Account a : accounts) {
 					System.out.println("Account " + a.getId());
 				}
-				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_YELLOW.getColor() + "Enter Account Id: " + Colors.ANSI_RED.getColor() + "(Press 0 to cancel) " + Colors.ANSI_RESET.getColor());
 				choice = input.nextInt();
+				
+				if(choice == 0) {
+					welcomeCustomer(customer);
+					valid = false;
+				}
 				
 				acct = accounts.stream()
 						.filter(account -> choice == account.getId())
