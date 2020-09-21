@@ -436,6 +436,10 @@ public class DollarsBankApplication {
 			try{
 				System.out.println(Colors.ANSI_YELLOW.getColor() + "How much do you wish to deposit?" + Colors.ANSI_RESET.getColor());
 				amount = input.nextDouble();
+				if(amount <= 0) {
+					throw new InvalidDepositException(amount);
+				}
+				
 				acct.deposit(amount);
 				boolean updated = accountdao.updateAccount(acct);
 				
@@ -448,9 +452,11 @@ public class DollarsBankApplication {
 					throw new Exception();
 				}
 				
+			}catch(InvalidDepositException e) {
+				
 			}catch(Exception e) {
 				input.nextLine();
-				System.out.println(Colors.ANSI_RED.getColor() + "Please enter a valid amount!" + Colors.ANSI_RESET.getColor());
+				System.out.println(Colors.ANSI_RED.getColor() + "Deposit must be a number!" + Colors.ANSI_RESET.getColor());
 			}
 		}
 	}
