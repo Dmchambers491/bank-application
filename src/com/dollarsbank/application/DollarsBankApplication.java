@@ -64,6 +64,14 @@ public class DollarsBankApplication {
 		welcome();
 	}
 	
+	public static boolean verifyPattern(Pattern p, String s) {
+		Matcher matcher = p.matcher(s);
+		if(matcher.matches() == true) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static void createAccount() {
 		String name;
 		String address;
@@ -85,8 +93,7 @@ public class DollarsBankApplication {
 				System.out.println("Customer Name:");
 				System.out.print(Colors.ANSI_CYAN.getColor());
 				name = input.nextLine();
-				Matcher nameMatcher = namePattern.matcher(name);
-				if(nameMatcher.matches() == false) {
+				if(verifyPattern(namePattern, name) == false) {
 					throw new InvalidNameException(name);
 				}
 				System.out.println(Colors.ANSI_RESET.getColor() + "Customer Address:");
@@ -95,8 +102,7 @@ public class DollarsBankApplication {
 				System.out.println(Colors.ANSI_RESET.getColor() + "Customer Contact Number:");
 				System.out.print(Colors.ANSI_CYAN.getColor());
 				phone_number = input.nextLine();
-				Matcher phoneMatcher = phonePattern.matcher(phone_number);
-				if(phoneMatcher.matches() == false) {
+				if(verifyPattern(phonePattern, phone_number) == false) {
 					throw new InvalidPhoneFormatException();
 				}
 				System.out.println(Colors.ANSI_RESET.getColor() + "User Id:");
@@ -107,8 +113,7 @@ public class DollarsBankApplication {
 					System.out.println(Colors.ANSI_RESET.getColor() + "Password: 8 Characters With Lower, Upper & Special");
 					System.out.print(Colors.ANSI_CYAN.getColor());
 					password = input.nextLine();
-					Matcher passwordMatcher = passwordPattern.matcher(password);
-					if(passwordMatcher.matches()) {
+					if(verifyPattern(passwordPattern, password)) {
 						Customer passwordCheck = customerdao.getCustomerByPassword(password);
 						if(passwordCheck == null) {
 							System.out.println(Colors.ANSI_RESET.getColor() + "Initial Deposit Amount:");
